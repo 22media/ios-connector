@@ -831,18 +831,16 @@ static int frameno; // count of frames captured and transmmitted
                 if ([sentText isEqualToString:@"repeato:clear_text"]){
                     Log(self, @"Remote asked to clear text");
                     [textField setText:@""];
-                }
-                else if ([sentText isEqualToString:@"repeato:backspace"]) {
+                } else if ([sentText isEqualToString:@"repeato:backspace"]) {
                     Log(self, @"Remote asked to remove last letter");
                     [textField deleteBackward];
-                }
-                else if ([sentText isEqualToString:@"repeato:quit_app"]) {
+                } else if ([sentText isEqualToString:@"repeato:quit_app"]) {
                     Log(self, @"Remote asked to quit app");
                     exit(0);
                 } else if ([sentText isEqualToString:@"repeato:enable_stream"]) {
                     Log(self, @"Enable image stream");
                     isStreamEnabled = TRUE;
-                }else if ([sentText isEqualToString:@"repeato:disable_stream"]) {
+                } else if ([sentText isEqualToString:@"repeato:disable_stream"]) {
                     Log(self, @"Disable image stream");
                     isStreamEnabled = FALSE;
                 } else if ([sentText hasPrefix:@"repeato:set_scale_up_factor:"]) {
@@ -853,8 +851,16 @@ static int frameno; // count of frames captured and transmmitted
                     [self queueCapture];
                 } else {
                     if (textField != nil) {
-                        Log(self, @"Insert text");
-                        [textField insertText:sentText];
+                        if ([sentText isEqualToString:@"\\n"]) {
+                            // Trigger the Enter key event
+                            if ([textField.delegate respondsToSelector:@selector(textFieldShouldReturn:)]) {
+                                Log(self, @"Enter key");
+                                [textField.delegate textFieldShouldReturn:textField];
+                            }
+                        } else {
+                            Log(self, @"Insert text: %@", sentText);
+                            [textField insertText:sentText];
+                        }
                     } else if (webView != nil) {
                         Log(self, @"Insert text into webview");
                         [self injectText:sentText intoWebView:webView];
