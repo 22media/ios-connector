@@ -849,18 +849,16 @@ static int frameno; // count of frames captured and transmmitted
                     scaleUpFactor = [scaleUpParam floatValue];
                     // send a new frame with the requested resolution right away
                     [self queueCapture];
+                } else if ([sentText isEqualToString:@"\\n"]) {
+                    // Trigger text input `Enter` key event
+                    if (textField != nil && [textField.delegate respondsToSelector:@selector(textFieldShouldReturn:)]) {
+                        Log(self, @"Enter key");
+                        [textField.delegate textFieldShouldReturn:textField];
+                    }
                 } else {
                     if (textField != nil) {
-                        if ([sentText isEqualToString:@"\\n"]) {
-                            // Trigger the Enter key event
-                            if ([textField.delegate respondsToSelector:@selector(textFieldShouldReturn:)]) {
-                                Log(self, @"Enter key");
-                                [textField.delegate textFieldShouldReturn:textField];
-                            }
-                        } else {
-                            Log(self, @"Insert text: %@", sentText);
-                            [textField insertText:sentText];
-                        }
+                        Log(self, @"Insert text: %@", sentText);
+                        [textField insertText:sentText];
                     } else if (webView != nil) {
                         Log(self, @"Insert text into webview");
                         [self injectText:sentText intoWebView:webView];
